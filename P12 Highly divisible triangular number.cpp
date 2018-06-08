@@ -6,9 +6,43 @@
 
 #define SIZE_OF_COMB_SET 4
 #define NUM_OF_PRIMES 10
+#define START_TRI_NUM_IND 100
+#define STOP_TRI_NUM_IND 20000
 
 int primes[NUM_OF_PRIMES] = { 2, 3, 5, 7, 11, 13, 17, 19, 23, 29};
-//int primeFactor[NUM_OF_PRIMES] = { 0 };
+int primeFactor[NUM_OF_PRIMES] = { 0 };
+
+void primeFactorization(int num, int primeIndex)
+{
+	if (primeIndex < NUM_OF_PRIMES)
+	{
+		if (num % primes[primeIndex] != 0)
+			primeFactorization(num, primeIndex + 1);
+		else
+		{
+			primeFactor[primeIndex]++;
+			if (num / primes[primeIndex] != 1)
+				primeFactorization(num / primes[primeIndex], 0);
+		}
+
+	}
+	else
+	{
+		memset(primeFactor, 0, sizeof(primeFactor)); // invalid, number too big
+	}
+}
+
+int howManyDivisors(long long Num)
+{
+	int divisors = 1;
+	memset(primeFactor, 0, sizeof(primeFactor));
+	primeFactorization(Num, 0);
+	for (size_t i = 0; i <= NUM_OF_PRIMES; i++)
+		if (primeFactor[i] != 0)
+			divisors *= primeFactor[i] + 1;
+
+	return divisors;
+}
 
 bool isTriangular(long long num)
 {
@@ -19,79 +53,18 @@ bool isTriangular(long long num)
 		return false;
 }
 
-void trimComb(int *comb)
-{
-	int mul = 1;
-	for (size_t i = 0; i < NUM_OF_PRIMES; i++)
-	{
-		if (mul >= 500)
-			comb[i] = 0;
-		else
-			mul *= comb[i] + 1;
-	}
-	
-}
-
-int calcMul(int *comb)
-{
-	int mul = 1;
-	for (size_t i = 0; i < NUM_OF_PRIMES; i++)
-	{
-		mul *= comb[i] + 1;
-	}
-	return mul; // 2^9 = 512 target divisors
-}
-
-void printComb(int *comb)
-{
-	for (size_t i = 0; i < NUM_OF_PRIMES; i++)
-	{
-		std::cout << comb[i] << " ";
-	}
-	std::cout << std::endl;
-}
-
-long long calcComb(int *comb)
-{
-	long long highlyDevNum = 1;
-	for (size_t i = 0; i < NUM_OF_PRIMES; i++)
-	{
-			highlyDevNum *= pow(primes[i], comb[i]);
-	}
-	return highlyDevNum;
-}
-
-void doCombs(int *comb, int index)
-{
-	if (index >= 10)
-	{
-		int muls = calcMul(comb);
-		trimComb(comb);
-		if (500 < muls)
-		{
-			long long highlyDevNum = calcComb(comb);
-			if (isTriangular(highlyDevNum))
-			{
-				std::cout << highlyDevNum << ":  ";
-				printComb(comb);
-			}
-		}
-	}
-	else
-	{
-		for (size_t i = 0; i < 3; i++)
-		{
-			comb[index] = i;
-			doCombs(comb, index + 1);
-		}
-	}
-}
-
 int main()
 {
-	int combs[NUM_OF_PRIMES] = { 0 };
+	long long triNum = START_TRI_NUM_IND*(START_TRI_NUM_IND+1)/2;
+	for (int i = START_TRI_NUM_IND+1; i < STOP_TRI_NUM_IND; i++)
+	{
+		triNum += i;
+		if(500 < howManyDivisors(triNum))
+			if (true)
+				if (isTriangular(triNum))
+					std::cout << triNum << std::endl;
 
-	doCombs(combs, 0);
+	}
 	system("pause");
 	return 0;
 }
